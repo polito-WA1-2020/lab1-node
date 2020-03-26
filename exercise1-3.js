@@ -15,15 +15,21 @@ function printMenu(){
 function addTask(tasks){
     const description = readline.question('Task description: ');
     const urgent = (readline.question('Is the task urgent (Y/N)? ').toLowerCase().trim() === 'y');
-    const privateTask = (readline.question('Is the task private (Y/N): ').toLowerCase().trim() === 'y');
-    const deadline = new Date(readline.question('Task deadline (YYYY-MM-DD): '));
+    const privateTask = (readline.question('Is the task private (Y/N): ', {defaultInput: 'y'}).toLowerCase().trim() === 'y');
+    let date = readline.question('Task deadline (YYYY-MM-DD): ').trim();
+    // roughly check if the time is present
+    // N.B. For this kind of operations, you should use Moment.js or similar!
+    if(!date.includes(" ")) {
+        date += " 23:59:59z";
+    }
+    const deadline = new Date(date);
     const task = {"description": description, "urgent": urgent ,"private": privateTask, "deadline": deadline};
     tasks.push(task);
 
     //set a timeout to delete the task after its deadline, if the deadline is "valid"
     if(!Number.isNaN(deadline.getTime())) {
         const now = new Date();
-        setTimeout(function() {
+        setTimeout(function(task) {
             tasks.splice(tasks.indexOf(task), 1);
         }, deadline.getTime() - now.getTime(), task);
     }
